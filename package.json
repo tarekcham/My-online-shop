@@ -1,0 +1,40 @@
+{
+  "name": "my-online-shop",
+  "version": "1.0.0",
+  "description": "Onlin Shop",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "neutrino build",
+    "start": "neutrino start",
+    "start-express": "node src/server/app.js",
+    "dev": "nodemon src/server/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tarekcham/My-online-shop.git"
+  },
+  "author": "Tarek alkhatib",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tarekcham/My-online-shop/issues"
+  },
+  "homepage": "https://github.com/tarekcham/My-online-shop#readme",
+  "devDependencies": {
+    "neutrino": "^7.3.3",
+    "neutrino-middleware-styles-loader": "0.0.6",
+    "neutrino-preset-airbnb-base": "^7.3.3",
+    "neutrino-preset-web": "^7.3.3",
+    "sass-loader": "^6.0.6"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "bootstrap": "^4.0.0-beta.2",
+    "cors": "^2.8.4",
+    "jquery": "^3.2.1",
+    "mysql": "^2.15.0",
+    "node-sass": "^4.7.2",
+    "popper.js": "^1.13.0",
+    "webpack": "^2.7.0"
+  }
+}
