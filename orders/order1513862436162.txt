@@ -1,0 +1,1 @@
+{"products":[{"id":"2","catid":"0","name":"Dell 3000","price":"700","quantity":1}],"user":{"name":"Juergen Erickson","street":"Friedrichstrasse 13","city":"12958 Leipzig"},"payment_method":"3"}
