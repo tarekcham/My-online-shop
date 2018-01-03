@@ -53,6 +53,7 @@ class Cart {
       $('.badge').show();
       $('.shopping-cart').show();
       $('.cart').show();
+      $('.user-login').hide();
       // updating items in cart
       $('.shopping-cart-items').empty();
       const storedProducts = this.cart.products;
@@ -86,7 +87,7 @@ class Cart {
     return this;
   }
   clear() {
-    localStorage.clear();
+    localStorage.removeItem('cart');
     this.cart.products = [];
     this.update();
     return this;

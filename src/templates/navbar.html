@@ -21,8 +21,14 @@
    <div class="right">
     <ul class="shopping-nav">
       <li class="cart">
-        <a href="#" id="cart" class="cart"><i class="fa fa-shopping-cart"></i> Cart <span class="badge">0</span></a>
+        <a href="#" id="cart" class="cart"><i class="fa fa-shopping-cart"></i> Cart <span class="badge">0</span></a></li>
+       <li> 
+        <button id="login-button" type="button" class="btn btn-default btn-sm">
+          <i class="fa fa-user" aria-hidden="true"></i> User 
+        </button>
+      </li>
     </ul>
+
     </div> 
 </nav>
 
@@ -42,3 +48,22 @@
     <button type="button" class="btn btn-dark btn-block checkout-proceed">Checkout</button>
     <button type="button" class="btn btn-danger emptyCart btn-block">Remove all products</button>
   </div> <!--end shopping-cart -->
+
+
+<div class="user-login">
+
+      <form class="form-signin">
+        <h2 class="form-signin-heading">Please sign in</h2>
+        <label for="inputEmail" class="sr-only ">Email address</label>
+        <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="">
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input type="password" id="inputPassword" class="form-control" placeholder="Password" required="">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" value="remember-me"> Remember me
+          </label>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </form>
+
+    </div>

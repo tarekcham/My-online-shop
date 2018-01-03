@@ -14,7 +14,7 @@ $(() => {
   // for convenience we create a jQuery object in which
   //  we will be able to put the content of our pages
   const $pageContent = $('<div class="page-content"></div>');
-
+  $('.shopping-cart').hide();
   let categories = [];
   let products = [];
 
@@ -88,11 +88,26 @@ $(() => {
 
   // the #cart element is located in the navbar
   // (which has been add above)
+  $('#cart').hide();
+  $('.shopping-cart').hide();
+
   $('#cart').click(((e) => {
     e.preventDefault();
     $('.shopping-cart').toggle('slow');
+    if ($('.user-login').is(':visible')) {
+      $('.user-login').hide();
+    }
   }));
+  $('.user-login').hide();
 
+  $('#login-button').click(((e) => {
+    e.preventDefault();
+    $('.user-login').toggle('slow');
+    $('#inputEmail').focus();
+    if ($('.shopping-cart').is(':visible')) {
+      $('.shopping-cart').hide();
+    }
+  }));
   // the checkout button is located in the navbar too
   $('.checkout-proceed').click(() => {
     // create a jQuery object filled with the checkoutTemplate
@@ -126,6 +141,8 @@ $(() => {
       const data = JSON.stringify({
         products: storedProducts,
         user: {
+          id: user.id,
+          email: user.email,
           name: $checkout.find('[name="user-name"]').val(),
           street: $checkout.find('[name="user-street"]').val(),
           city: $checkout.find('[name="user-city"]').val(),
@@ -136,7 +153,7 @@ $(() => {
       $.ajax('http://localhost:9090/api/order', {
         method: 'POST',
         // the content-type of the request has to be application/json
-        // in order for the server to be able to read the body (of the request)
+        // in order for the spaerver to be able to read the body (of the request)
         contentType: 'application/json',
         data,
       })
@@ -234,3 +251,4 @@ $(() => {
     });
   // End
 });
+
