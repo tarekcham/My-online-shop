@@ -113,7 +113,7 @@ nav {
   white-space: nowrap;
 }
 
-.shopping-cart , .user-login {
+.shopping-cart , .user-login , .user-register {
   position: fixed!important;
   box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 16px 0px, rgba(0, 0, 0, 0.19) 0px 6px 20px 0px;
   z-index: 10;
@@ -183,6 +183,15 @@ nav {
     margin: 1rem;
    }
 
+.user-login {
+  right: 105px;
+}
+
+.shopping-cart{
+  right: 175px;
+}
+
+
 .shopping-cart:after {
   bottom: 100%;
   left: 89%;
@@ -229,4 +238,8 @@ nav {
 .cart-img {
   max-width: 100px;
   max-height: auto;
+}
+
+.notRegister {
+  margin: 1rem;
 }

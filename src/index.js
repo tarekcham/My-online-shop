@@ -94,8 +94,9 @@ $(() => {
   $('#cart').click(((e) => {
     e.preventDefault();
     $('.shopping-cart').toggle('slow');
-    if ($('.user-login').is(':visible')) {
+    if ($('.user-login').is(':visible') || $('.user-register').is(':visible')) {
       $('.user-login').hide();
+      $('.user-register').hide();
     }
   }));
   $('.user-login').hide();
@@ -104,8 +105,38 @@ $(() => {
     e.preventDefault();
     $('.user-login').toggle('slow');
     $('#inputEmail').focus();
-    if ($('.shopping-cart').is(':visible')) {
+    if ($('.shopping-cart').is(':visible') || $('.user-register').is(':visible')) {
       $('.shopping-cart').hide();
+      $('.user-register').hide();
+    }
+  }));
+  $('.user-register').hide();
+  $('#register-button').click(((e) => {
+    e.preventDefault();
+    $('.user-register').toggle('slow');
+    $('#inputFirstName').focus();
+    if ($('.user-login').is(':visible') || $('.shopping-cart').is(':visible')) {
+      $('.shopping-cart').hide();
+      $('.user-login').hide();
+    }
+  }));
+  $('#notRegister').click(((e) => {
+    e.preventDefault();
+    $('.user-register').toggle('slow');
+    $('#inputFirstName').focus();
+    if ($('.user-login').is(':visible') || $('.shopping-cart').is(':visible')) {
+      $('.shopping-cart').hide();
+      $('.user-login').hide();
+    }
+  }));
+
+  $('#Registered').click(((e) => {
+    e.preventDefault();
+    $('.user-login').toggle('slow');
+    $('#inputEmail').focus();
+    if ($('.user-login').is(':visible') || $('.shopping-cart').is(':visible')) {
+      $('.shopping-cart').hide();
+      $('.user-register').hide();
     }
   }));
   // the checkout button is located in the navbar too
@@ -244,11 +275,11 @@ $(() => {
     .fail(handleAJAXError);
   // randomly select one user from the database at the beginning,
   // so that we have one user for ordering and checkout
-  $.ajax('http://localhost:9090/api/customers')
-    .done((customers) => {
-      const user = JSON.stringify(customers[Math.floor(Math.random(customers.length))]);
-      localStorage.setItem('user', user);
-    });
+  // $.ajax('http://localhost:9090/api/customers')
+  //   .done((customers) => {
+  //     const user = JSON.stringify(customers[Math.floor(Math.random(customers.length))]);
+  //     localStorage.setItem('user', user);
+  //   });
   // End
 });
 

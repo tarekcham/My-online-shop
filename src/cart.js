@@ -54,6 +54,7 @@ class Cart {
       $('.shopping-cart').show();
       $('.cart').show();
       $('.user-login').hide();
+      $('.user-register').hide();
       // updating items in cart
       $('.shopping-cart-items').empty();
       const storedProducts = this.cart.products;

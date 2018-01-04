@@ -1,10 +1,8 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
   <a class="navbar-brand" href="#">MyShop</a>
-
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
-
   <div class="collapse navbar-collapse" id="navbar">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
@@ -12,58 +10,81 @@
       </li>
     </ul>
   </div>
-
-<!--   <form class="form-inline">
+  <!--   <form class="form-inline">
     <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
     <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
   </form> -->
-
-   <div class="right">
+  <div class="right">
     <ul class="shopping-nav">
       <li class="cart">
         <a href="#" id="cart" class="cart"><i class="fa fa-shopping-cart"></i> Cart <span class="badge">0</span></a></li>
-       <li> 
+      <li>
         <button id="login-button" type="button" class="btn btn-default btn-sm">
-          <i class="fa fa-user" aria-hidden="true"></i> User 
+          <i class="fa fa-sign-in" aria-hidden="true"></i></i> Login
         </button>
       </li>
+      <button id="register-button" type="button" class="btn btn-default btn-sm">
+        <i class="fa fa-user-plus" aria-hidden="true"></i> Register
+      </button>
+      </li>
     </ul>
-
-    </div> 
+  </div>
 </nav>
-
-
-  <div class="shopping-cart">
-    <div class="shopping-cart-header">
-      <i class="fa fa-shopping-cart cart-icon"></i>Total products: <span class="badge">0</span>
-      <div class="shopping-cart-total">
-        <span class="lighter-text">Total price:</span>
-        <span class="total"></span>
-      </div>
-    </div> <!--end shopping-cart-header -->
-
-    <ul class="shopping-cart-items">
-    </ul>
-
-    <button type="button" class="btn btn-dark btn-block checkout-proceed">Checkout</button>
-    <button type="button" class="btn btn-danger emptyCart btn-block">Remove all products</button>
-  </div> <!--end shopping-cart -->
-
-
-<div class="user-login">
-
-      <form class="form-signin">
-        <h2 class="form-signin-heading">Please sign in</h2>
-        <label for="inputEmail" class="sr-only ">Email address</label>
-        <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="">
-        <label for="inputPassword" class="sr-only">Password</label>
-        <input type="password" id="inputPassword" class="form-control" placeholder="Password" required="">
-        <div class="checkbox">
-          <label>
-            <input type="checkbox" value="remember-me"> Remember me
-          </label>
-        </div>
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-      </form>
-
+<div class="shopping-cart">
+  <div class="shopping-cart-header">
+    <i class="fa fa-shopping-cart cart-icon"></i>Total products: <span class="badge">0</span>
+    <div class="shopping-cart-total">
+      <span class="lighter-text">Total price:</span>
+      <span class="total"></span>
     </div>
+  </div>
+  <!--end shopping-cart-header -->
+  <ul class="shopping-cart-items">
+  </ul>
+  <button type="button" class="btn btn-dark btn-block checkout-proceed">Checkout</button>
+  <button type="button" class="btn btn-danger emptyCart btn-block">Remove all products</button>
+</div>
+<!--end shopping-cart -->
+<div class="user-login">
+  <form class="form-signin">
+    <h2 class="form-signin-heading">Please sign in</h2>
+    <label for="inputEmail" class="sr-only ">Email address</label>
+    <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="">
+    <label for="inputPassword" class="sr-only">Password</label>
+    <input type="password" id="inputPassword" class="form-control" placeholder="Password" required="">
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" value="remember-me"> Remember me
+      </label>
+    </div>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+    <p class="notRegister"> <i class="fa fa-exclamation-circle" aria-hidden="true"></i> if you have not registered yet <a id="notRegister" href="">click here </a></p>
+  </form>
+</div>
+
+<div class="user-register">
+  <form class="form-signin">
+    <h2 class="form-signin-heading">Please Register</h2>
+    <label for="inputFirstName" class="sr-only ">First Name</label>
+    <input type="email" id="inputFirstName" class="form-control" placeholder="First Name" required="" autofocus="">
+    <label for="inputLastName" class="sr-only">Last Name</label>
+    <input type="lighter-text" id="inputLastName" class="form-control" placeholder="Last Name" required="">
+    <label for="inputDate" class="sr-only "> Date</label>
+    <input type="Date" id="inputDate" class="form-control" placeholder="date" required="" autofocus="">
+    <label for="inputStreet" class="sr-only "> Street</label>
+    <input type="lighter-text" id="inputStreet" class="form-control" placeholder="Email address" required="" autofocus="">
+    <label for="inputCity" class="sr-only ">City</label>
+    <input type="email" id="inputCity" class="form-control" placeholder="City" required="" autofocus="">
+    <label for="inputPostal" class="sr-only ">Postal</label>
+    <input type="email" id="inputPostal" class="form-control" placeholder="Postal" required="" autofocus="">
+    <label for="inputEmail" class="sr-only ">Email address</label>
+    <input type="email" id="inputEmail2" class="form-control" placeholder="Email address" required="" autofocus="">
+    <label>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+    </label>
+    <p class="notRegister"><i class="fa fa-exclamation-circle" aria-hidden="true"></i> if you have already registered! <a id="Registered" href="">Sign in </a></p>
+</div>
+
+
+</form>
+</div>
