@@ -19,7 +19,7 @@ export function mkProductCard(product) {
 export default function refreshProducts(products, type) {
   const cart = new Cart();
   // used to force clean during development
-  cart.clear();
+  // cart.clear();
   cart.update();
   $('#products-grid').empty();
   $('#products-grid').append('<div class="row"></div>');

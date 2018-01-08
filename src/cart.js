@@ -30,6 +30,7 @@ class Cart {
     //  add product to cart
     this.cart.products.push(product);
     localStorage.setItem('cart', JSON.stringify(this.cart.products));
+    this.cart.products = JSON.parse(localStorage.getItem('cart'));
     return this.update();
   }
 
@@ -43,18 +44,36 @@ class Cart {
 
   update() {
     //  update badge and show/hide cart container
-    if (localStorage.getItem('cart') === null) {
+    if (localStorage.getItem('cart') === null || Object.keys(localStorage.getItem('cart')).length === 0) {
       $('.badge').text(0);
       $('.badge').hide();
       $('.shopping-cart').hide();
       $('.cart').hide();
+      $('.user-signin').show();
     } else {
+      this.cart.products = JSON.parse(localStorage.getItem('cart'));
       $('.badge').text(Object.keys(this.cart.products).length);
       $('.badge').show();
       $('.shopping-cart').show();
       $('.cart').show();
+      // hide user auth stuff
       $('.user-login').hide();
-      $('.user-register').hide();
+      $('.user-registration').hide();
+      // check if user is logged in
+      const loggedUser = JSON.parse(localStorage.getItem('user'));
+      if (loggedUser === null) {
+        $('.user-signed').hide();
+        $('.user-signout').hide();
+        $('#user-signin').show();
+        $('.checkout-proceed').attr('disabled', true);
+        $('.checkout-user-alert').show();
+      } else {
+        $('#user-signin').hide();
+        $('#user-signup').hide();
+        $('.logged').text(loggedUser.firstname);
+        $('.checkout-proceed').attr('disabled', false);
+        $('.checkout-user-alert').hide();
+      }
       // updating items in cart
       $('.shopping-cart-items').empty();
       const storedProducts = this.cart.products;
