@@ -23,9 +23,9 @@ function sendMail(recipientAddress, subject, body) {
 
   transporter.sendMail(mailOptions, function(err, info) {
     if(err)
-      console.log('mail was not delivered');
+      console.log('mail was not delivered:'+err);
   }); 
 }
 
 module.exports.sendMail = sendMail;
- console.log(sendMail.host);
+ console.log(sendMail);

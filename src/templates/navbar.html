@@ -50,12 +50,15 @@
   <div class="user-login-header">
     <form id="form-signin" class="form-signin">
       <h3>Sign-in</h3>
-      <label for="inputUsername" class="sr-only">Username</label>
-      <input type="text" id="inputUsername" class="form-control" placeholder="Username" required>
       <label for="inputEmail" class="sr-only">Email address</label>
-      <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required>
+      <input type="email" name="email" id="inputEmailSignin" class="form-control" placeholder="Email address" required>
+      <label for="inputPassword" class="sr-only">Password</label>
+      <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
       <button type="submit" class="login-proceed btn btn-dark btn-block">Login</button>
     </form>
+    <div class="loginerror alert alert-danger" style="display: none">
+      <strong>Error:</strong> <span class="errmsg">Username/Password does not exist</span>
+    </div>    
     <a id="signup-link" class="signup-link" href="#"><i class="fa fa-info-circle" aria-hidden="true"></i> Not Registered yet? Create an account!</a>
   </div> <!--end user-login-header -->
 </div> <!--end user-login -->
@@ -99,4 +102,3 @@
     <button type="button" class="checkout-proceed btn btn-dark btn-block">Checkout</button>
     <button type="button" class="btn btn-danger emptyCart btn-block">Remove all products</button>
   </div> <!--end shopping-cart -->
-  

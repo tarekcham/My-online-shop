@@ -6,8 +6,10 @@ const app = express();
 const cors = require('cors');
 const mysql = require('mysql');
 const mailnotifier = require('./mailnotifier');
+const jwt = require('jsonwebtoken');
 
 const frontendDirectoryPath = path.resolve(__dirname, './../static');
+const serverSignature = 'my_secret_signature';
 
 console.log('static resource at: ' + frontendDirectoryPath);
 app.use(express.static(frontendDirectoryPath));
@@ -17,18 +19,25 @@ app.use(express.json());
 // avoid hardcoded DB connection information at ALL COSTS!
 // use the following command to start your server:
 // MYSQL_PASSWORD=P455w0rd MYSQL_USER=root MYSQL_DB=x_shop npm run start-express-dev
-const {
-  MYSQL_PASSWORD = 'fjfjfj',
-  MYSQL_USER = 'root',
-  MYSQL_DB = 'online_shop',
-} = process.env;
 
-console.info('MYSQL: user "%s", db "%s", pass length %s', MYSQL_USER, MYSQL_DB, MYSQL_PASSWORD.length);
+let shopConfigPath = process.env.HOME + '/.online-shop.json';
+let shopConfig = null;
+console.log(shopConfigPath);
+
+if(!fs.existsSync(shopConfigPath)) {
+  console.log('Online-Shop config file was not found. Server stops.');
+  process.exit();
+} else {
+  shopConfig = require(shopConfigPath);
+}
+
+
+console.info('MYSQL: user "%s", db "%s", pass length %s', shopConfig.mysql_usr, shopConfig.mysql_db, shopConfig.mysql_pwd.length);
 var con = mysql.createConnection({
   host: 'localhost',
-  user: MYSQL_USER,
-  password: MYSQL_PASSWORD,
-  database: MYSQL_DB
+  user: shopConfig.mysql_usr,
+  password: shopConfig.mysql_pwd,
+  database: shopConfig.mysql_db
 });
 
 
@@ -44,7 +53,7 @@ apiRouter.get('/products', (req, res, next) => {
   con.query('select * from products', function(err, rows) {
     if (err) return next(err);
 
-    // console.log( rows );
+    console.log( rows );
     res.json( rows );
   });
 });
@@ -53,7 +62,7 @@ apiRouter.get('/products', (req, res, next) => {
   con.query('select * from products', function(err, rows) {
     if (err) return next(err);
 
-   // console.log( rows );
+    console.log( rows );
     res.json( rows );
   });
 });
@@ -62,7 +71,7 @@ apiRouter.get('/categories', (req, res, next) => {
   con.query('select * from product_categories', function(err, rows) {
     if (err) return next(err);
 
-    // console.log( rows );
+    console.log( rows );
     res.json( rows );
   });
 });
@@ -71,7 +80,7 @@ apiRouter.get('/customers', function(req, res, next) {
   con.query('select * from customers where active = 1', function(err, rows) {
     if (err) return next(err);
 
-    // console.log( rows );
+    console.log( rows );
     res.json( rows );
   });
 });
@@ -80,7 +89,7 @@ apiRouter.get('/payment_methods', function(req, res, next) {
   con.query('select * from payment_method', function(err, rows) {
     if (err) return next(err);
 
-    // console.log( rows );
+    console.log( rows );
     res.json( rows );
   });
 });
@@ -91,13 +100,12 @@ apiRouter.put('/activate/:userid', function(req, res, next) {
     function(err, rows) {
     if (err) return next(err);
 
-    // console.log( rows );
+    console.log( rows );
     res.json( rows );
   });
 });
 
 apiRouter.post('/user', function(req, res, next) {
-
   con.query('select * from customers where email = ?',
     [req.body.email],
     function(err, rows) {
@@ -128,8 +136,33 @@ apiRouter.post('/user', function(req, res, next) {
     });
 });
  
+apiRouter.post('/login', function(req, res) {
+  console.log(req.body);
+  if(!req.body.email || !req.body.password)
+    return res.json({ err: 'username and password required'});
+
+  con.query('select * from customers where email = ?', 
+    [req.body.email], function(err, rows) {
+    if (err) return res.json( {err: 'Internal error happened'} );
+    var bcrypt = require('bcryptjs');
+    if(rows.length > 0 && bcrypt.compareSync(rows[0].pwd, req.body.password)){
+      console.log("auth ok");
+      if(rows.length > 0) {
+        const token = jwt.sign({email: rows[0].email, pwd: rows[0].pwd}, serverSignature);    
+        const user = rows[0];
+        user.token = token;
+        delete user.pwd;  // do not send back the password
+        return res.json(user);
+      }
+    }else{
+      console.log("ERROR: password don't match");
+      return res.json( {err: 'Username does not exist'});
+    }
+  }); 
+});
+
 apiRouter.post('/order', function(req, res, next) {   
-  // console.log('RECEIVING: ' + JSON.stringify(req.body));
+  console.log('RECEIVING: ' + JSON.stringify(req.body));
   con.query('insert into orders (customer_id, payment_id, created, paid) values (?, ?, now(), NULL)', [req.body.user.id, req.body.payment_method], function(err, rows) {
       if(err) {
         return res.json({err: err});
@@ -161,9 +194,10 @@ apiRouter.post('/order', function(req, res, next) {
               Thank you for your order of ${orderValue}.
               We which you a nice day.
               Your Devugees-Shop Team.`;
-        console.log(req.body.user.email);
-        mailnotifier.sendMail(req.body.user.email, 'Your Order at Devugees-Shop', text);
 
+        if(shopConfig.mailnotifications === "1") {
+        mailnotifier.sendMail(req.body.user.email, 'Your Order at Devugees-Shop', text);
+        }
         return res.json({success: rows})    
       });
 
@@ -178,7 +212,7 @@ apiRouter.post('/order', function(req, res, next) {
 });
 
 apiRouter.put('/user/:userid', function(req, res, next) {
-  // console.log('userid: ' + req.params.userid);
+  console.log('userid: ' + req.params.userid);
   var sql = 'update customers set ';
   var i = 1;
   var bodyLength = Object.keys(req.body).length;
@@ -198,7 +232,7 @@ apiRouter.put('/user/:userid', function(req, res, next) {
     function(err, rows) {
     if (err) return next(err);
 
-    // console.log( rows );
+    console.log( rows );
     res.json( rows );
   });
 });
@@ -208,7 +242,7 @@ apiRouter.delete('/user/:userid', function(req, res, next) {
     function(err, rows) {
     if (err) return next(err);
 
-    // console.log( rows );
+    console.log( rows );
     res.json( rows );
   });
 });
@@ -220,7 +254,7 @@ apiRouter.use(function(req, res, next) {
 });
 
 apiRouter.use(function (err, req, res, next) {
-  // console.warn('Error occured for "%s":\n%s', req.url, err.stack);
+  console.warn('Error occured for "%s":\n%s', req.url, err.stack);
   res.json(err);
 });
 
@@ -230,6 +264,6 @@ con.connect(function (err) {
 
   app.listen( 9090, (err) => {
     if(err) throw err;
-    // console.log('Server started on port 9090');
+    console.log('Server started on port 9090');
   });
 });
