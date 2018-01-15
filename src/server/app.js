@@ -20,24 +20,24 @@ app.use(express.json());
 // use the following command to start your server:
 // MYSQL_PASSWORD=P455w0rd MYSQL_USER=root MYSQL_DB=x_shop npm run start-express-dev
 
-let shopConfigPath = process.env.HOME + '/.online-shop.json';
+let shopConfigPath = process.env.HOME + '/.online_shop.json';
 let shopConfig = null;
-console.log(shopConfigPath);
-
 if(!fs.existsSync(shopConfigPath)) {
-  console.log('Online-Shop config file was not found. Server stops.');
+  console.log('Online_shop config file was not found. Server stops.');
   process.exit();
-} else {
+}
+else {
   shopConfig = require(shopConfigPath);
 }
 
 
-console.info('MYSQL: user "%s", db "%s", pass length %s', shopConfig.mysql_usr, shopConfig.mysql_db, shopConfig.mysql_pwd.length);
-var con = mysql.createConnection({
+console.info('MYSQL: user "%s", db "%s", pass length %s mailnotifications = ', shopConfig.mysql_usr, shopConfig.mysql_db,shopConfig.mysql_pwd.length, shopConfig.mailnotifications);
+  var con = mysql.createConnection({
   host: 'localhost',
   user: shopConfig.mysql_usr,
   password: shopConfig.mysql_pwd,
-  database: shopConfig.mysql_db
+  database: shopConfig.mysql_db,
+  mailnotifications: shopConfig.mailnotifications,
 });
 
 
@@ -161,6 +161,42 @@ apiRouter.post('/login', function(req, res) {
   }); 
 });
 
+apiRouter.post('/signup', function(req, res) {
+  console.log(req.body);
+  if(!req.body.firstname || !req.body.lastname ||  !req.body.birthdate || !req.body.street ||  !req.body.city || !req.body.postal || !req.body.email || !req.body.password || !req.body.phone)
+    return res.json({ err: 'some data  missing'});
+  con.query('select * from customers where email = ?',
+    [req.body.email],
+    function(err, rows) {
+      if (err) return (err);
+
+      if( rows.length > 0 ) {
+        res.json({error: 'Email already exists.'});
+      }
+      else {
+        con.query(`insert into customers (firstname, lastname, birthdate, phone, city, postal, street, email, pwd)
+          values (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            req.body.firstname,
+            req.body.lastname,
+            req.body.birthdate,
+            req.body.phone,
+            req.body.city,
+            req.body.postal,
+            req.body.street,
+            req.body.email,
+            req.body.password
+          ],
+          function(err, rows) {
+            if (err) return next(err);
+
+            res.json( rows );
+          }
+        );
+      }
+    });
+  });
+
 apiRouter.post('/order', function(req, res, next) {   
   console.log('RECEIVING: ' + JSON.stringify(req.body));
   con.query('insert into orders (customer_id, payment_id, created, paid) values (?, ?, now(), NULL)', [req.body.user.id, req.body.payment_method], function(err, rows) {
@@ -206,6 +242,7 @@ apiRouter.post('/order', function(req, res, next) {
   fs.writeFile(path.resolve(__dirname, './../orders/orders'+Date.now()+'.txt'), JSON.stringify(req.body),
     (err) => {
       if (err) return next(err);
+
       res.json({success:'order saved'});
     });
   */

@@ -214,22 +214,46 @@ $(() => {
     e.preventDefault();
     // retrieve registration info from the form and
     // save a new user in localStorage
-    localStorage.removeItem('user');
-    const user = {};
-    user.firstname = $('#form-signup input[name=firstname]').val();
-    user.lastname = $('#form-signup input[name=lastname]').val();
-    user.street = $('#form-signup input[name=street]').val();
-    user.city = $('#form-signup input[name=city]').val();
-    user.postal = $('#form-signup input[name=postal]').val();
-    user.birthdate = $('#form-signup input[name=birthdate]').val();
-    user.email = $('#form-signup input[name=email]').val();
-    localStorage.setItem('user', JSON.stringify(user));
-    loggedUser();
-    $('.logged').text(user.firstname);
-    $('.user-registration').toggle('slow');
-  }));
+ localStorage.removeItem('user');
 
-  // the checkout button is located in the navbar too
+  
+      $.ajax({
+        url: "http://localhost:9090/api/signup",
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify ({
+        password : $('#form-signup input[name=pwd2]').val(),
+        firstname : $('#form-signup input[name=firstname]').val(),
+        lastname : $('#form-signup input[name=lastname]').val(),
+        street : $('#form-signup input[name=street]').val(),
+        city : $('#form-signup input[name=city]').val(),
+        postal : $('#form-signup input[name=postal]').val(),
+        phone : $('#form-signup input[name=phone]').val(),
+        birthdate : $('#form-signup input[name=birthdate]').val(),
+        email : $('#form-signup input[name=email]').val()
+        })
+      })
+      .done(function(data) {
+        console.log('success', data);
+
+        if(data.err) {
+          $('.loguperror').show();
+          $('.errmsg2').text(data.err);
+        }
+        else {
+          const user = data;
+          loggedUser();
+          $('.logged').text(user.firstname);
+          localStorage.setItem('user', JSON.stringify(user));
+          $('.user-login').toggle('slow');
+        }
+      })
+      .fail(function(xhr) {
+        console.log('error', xhr);
+      });   
+    }));
+   // the checkout button is located in the navbar too
   $('.checkout-proceed').click(() => {
     // create a jQuery object filled with the checkoutTemplate
     const $checkout = $(checkoutTemplate);
