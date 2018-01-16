@@ -7,6 +7,8 @@ const cors = require('cors');
 const mysql = require('mysql');
 const mailnotifier = require('./mailnotifier');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const randomstring = require('randomstring');
 
 const frontendDirectoryPath = path.resolve(__dirname, './../static');
 const serverSignature = 'my_secret_signature';
@@ -20,24 +22,24 @@ app.use(express.json());
 // use the following command to start your server:
 // MYSQL_PASSWORD=P455w0rd MYSQL_USER=root MYSQL_DB=x_shop npm run start-express-dev
 
-let shopConfigPath = process.env.HOME + '/.online_shop.json';
+let shopConfigPath = process.env.HOME + '/.online-shop.json';
 let shopConfig = null;
+
+console.log(shopConfigPath);
+
 if(!fs.existsSync(shopConfigPath)) {
-  console.log('Online_shop config file was not found. Server stops.');
+  console.log('Online-Shop config file was not found. Server stops.');
   process.exit();
-}
-else {
+} else {
   shopConfig = require(shopConfigPath);
 }
 
-
-console.info('MYSQL: user "%s", db "%s", pass length %s mailnotifications = ', shopConfig.mysql_usr, shopConfig.mysql_db,shopConfig.mysql_pwd.length, shopConfig.mailnotifications);
-  var con = mysql.createConnection({
+console.info('MYSQL: user "%s", db "%s", pass length %s', shopConfig.mysql_usr, shopConfig.mysql_db, shopConfig.mysql_pwd.length);
+var con = mysql.createConnection({
   host: 'localhost',
   user: shopConfig.mysql_usr,
   password: shopConfig.mysql_pwd,
-  database: shopConfig.mysql_db,
-  mailnotifications: shopConfig.mailnotifications,
+  database: shopConfig.mysql_db
 });
 
 
@@ -94,23 +96,29 @@ apiRouter.get('/payment_methods', function(req, res, next) {
   });
 });
 
-apiRouter.put('/activate/:userid', function(req, res, next) {
-  con.query('update customers set active = ? where id = ?',
-    [req.body.status, req.params.userid],
+apiRouter.put('/activate/:activationcode', function(req, res, next) {
+  con.query('update customers set active = 1 where activationcode = ?',
+    [req.params.activationcode],
     function(err, rows) {
-    if (err) return next(err);
+      if (err) 
+        return next(err);
 
-    console.log( rows );
-    res.json( rows );
+      console.log(rows);      
+      if(rows.affectedRows > 0) {
+        return res.json({ error: 0 });
+      }
+      else {
+        return res.json({ error: 1 });  
+      }
   });
 });
 
+/*
 apiRouter.post('/user', function(req, res, next) {
   con.query('select * from customers where email = ?',
     [req.body.email],
     function(err, rows) {
       if (err) return next(err);
-
       if( rows.length > 0 ) {
         res.json({error: 'Email already exists.'});
       }
@@ -128,14 +136,13 @@ apiRouter.post('/user', function(req, res, next) {
           ],
           function(err, rows) {
             if (err) return next(err);
-
             res.json( rows );
           }
         );
       }
     });
 });
- 
+*/ 
 apiRouter.post('/login', function(req, res) {
   console.log(req.body);
   if(!req.body.email || !req.body.password)
@@ -161,41 +168,66 @@ apiRouter.post('/login', function(req, res) {
   }); 
 });
 
-apiRouter.post('/signup', function(req, res) {
+apiRouter.post('/register', function(req, res) {
   console.log(req.body);
-  if(!req.body.firstname || !req.body.lastname ||  !req.body.birthdate || !req.body.street ||  !req.body.city || !req.body.postal || !req.body.email || !req.body.password || !req.body.phone)
-    return res.json({ err: 'some data  missing'});
+  // if(!req.body.email || !req.body.password)
+  //   return res.json({ err: 'username and password required'});
+
   con.query('select * from customers where email = ?',
     [req.body.email],
-    function(err, rows) {
-      if (err) return (err);
+    function(err, rows, next) {
+      if (err) return next(err);
 
       if( rows.length > 0 ) {
-        res.json({error: 'Email already exists.'});
+        return res.json({err: 'User with this email already exists.'});
       }
       else {
-        con.query(`insert into customers (firstname, lastname, birthdate, phone, city, postal, street, email, pwd)
-          values (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        const activationCode = randomstring.generate(20);
+        con.query(`insert into customers (firstname, lastname, birthdate, city, street, postal, email, phone, pwd, active, activationcode)
+          values (?, ?, ?, ?, ?, ?, ?, ?, ?, '0', ?)`,
           [
             req.body.firstname,
             req.body.lastname,
             req.body.birthdate,
-            req.body.phone,
             req.body.city,
-            req.body.postal,
             req.body.street,
+            req.body.postal,
             req.body.email,
-            req.body.password
+            req.body.phone,
+            req.body.password,
+            activationCode
           ],
           function(err, rows) {
-            if (err) return next(err);
+            if (err){
+              res.json({err: 'Error creating user. '+err}) 
+            } 
+            else {
+            console.log('sending email to: ' + req.body.email);
+            if(shopConfig.mailnotifications === "1") {
+              mailnotifier.sendMail(
+                  req.body.email, 
+                  'Your Registration at Devugees-Shop', 
+                  'Hallo ' + req.body.firstname + ', '
+                  + 'in order to complete your registration, please follow'
+                  + 'this link here: http://localhost:5000/activate=' + activationCode
+                );
+          }
 
-            res.json( rows );
+          res.json({ error: 0 });
+        }
+
+              /*
+              const token = jwt.sign({email: req.body.email, pwd: req.body.pwd}, serverSignature);    
+              req.body.token = token;
+              delete req.body.pwd;  // do not send back the password
+              return res.json(req.body);
+              res.json( req.body );
+              */
           }
         );
       }
     });
-  });
+});
 
 apiRouter.post('/order', function(req, res, next) {   
   console.log('RECEIVING: ' + JSON.stringify(req.body));
@@ -242,7 +274,6 @@ apiRouter.post('/order', function(req, res, next) {
   fs.writeFile(path.resolve(__dirname, './../orders/orders'+Date.now()+'.txt'), JSON.stringify(req.body),
     (err) => {
       if (err) return next(err);
-
       res.json({success:'order saved'});
     });
   */
