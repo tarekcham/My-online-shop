@@ -13,6 +13,7 @@ export function mkProductCard(product) {
   $el.find('.detailsButton').attr('data-id', `${product.id}`);
   $el.find('.detailsButton').attr('data-catid', `${product.category_id}`);
   $el.find('.detailsButton').attr('data-price', `${product.price}`);
+  $el.find('.detailsButton').attr('data-description', `${product.description}`);
   return $el;
 }
 //  filter and refresh the products
@@ -44,12 +45,14 @@ export default function refreshProducts(products, type) {
   $('.detailsButton').click((eventObj) => {
     // define obj
     const { target } = eventObj;
+    console.log(eventObj);
     //  replace text with jquery retriving data from dom
     $('.modal-title').text(`More info about ${target.getAttribute('data-name')}`);
     $('.modal-image').attr('src', `./static/assets/images/0${target.getAttribute('data-catid')}.jpg`);
     $('.modal-body').text(`The price of this product is € ${target.getAttribute('data-price')}`);
     $('.modal-total').text(`Total 1x ${target.getAttribute('data-name')} is € ${target.getAttribute('data-price')} (Prod. id: ${target.getAttribute('data-id')})`);
     $('#detailsModal').modal('toggle');
+    $('.modal-lorem').text(` ${target.getAttribute('data-description')} )`);
   });
   //  add to cart
   $('.addCart').click((eventObj) => {

@@ -7,11 +7,11 @@ import './styles.scss';
 import navbarTemplate from './templates/navbar.html';
 import modalTemplate from './templates/modal.html';
 import activationModalTemplate from './templates/activationmodal.html';
+import resetPasswordModalTemplate from './templates/resetpasswordmodal.html';
 import checkoutTemplate from './templates/checkout.html';
 import paymentMethodRadioTemplate from './templates/payment-method-radio.html';
 import mkCarousel from './carousel';
 import refreshProducts from './products';
-var bcrypt = require('bcryptjs');
 
 //  this is the function which is used when the page loads
 $(() => {
@@ -72,16 +72,19 @@ $(() => {
 
   $('.loginerror').hide();
 
+
   //  show nav button only for logged users
   function loggedUser() {
     $('#user-signed-link').show();
     $('#user-signout-link').show();
     $('#user-signin-link').hide();
     $('#user-signup-link').hide();
+    $('.user-updateinfo').hide();
     $('#form-signup button').text('Update Info');
-    $('#form-signup button').attr('disabled',true);
+    //$('#form-signup button').attr('disabled',true);
     $('.user-registration-header #signup-link').hide();
-    $('#form-signup h3').text('Edit info')
+
+    $('#form-signup h3').text('Edit info');
   }
 
   // show nav button for guest users
@@ -89,10 +92,11 @@ $(() => {
     $('#form-signup input').val('');
     $('#user-signed-link').hide();
     $('#user-signout-link').hide();
+    $('.user-updateinfo').hide();
     $('#user-signin-link').show();
     $('#user-signup-link').show();
     $('#form-signup button').text('Register');
-    $('#form-signup button').attr('disabled',false);
+    // $('#form-signup button').attr('disabled',false);
     $('.user-registration-header #signup-link').show();
     $('#form-signup h3').text('Register')
   }
@@ -102,6 +106,7 @@ $(() => {
     // because when we click on product details
     // we replace its content
     .append(activationModalTemplate)
+    .append(resetPasswordModalTemplate)
     // (rather than creating the whole modal again)
     .append(modalTemplate)
     // the navbar stays accross the pages so
@@ -141,7 +146,10 @@ $(() => {
     console.log('activationCode: ' + activationCode);   
   }
 
-
+  if(lastPart.startsWith('resetpassword')) {    
+    $('#resetPasswordModal').modal({backdrop: 'static', keyboard: false})    
+  }
+  
   // in order to handle errors in consistent manner
   function handleAJAXError(xhr, status, error) {
     $pageContent
@@ -161,6 +169,7 @@ $(() => {
   } else {
     loggedUser();
     $('.logged').text(notGuest.firstname);
+
   }
 
   // the #cart element is located in the navbar
@@ -188,7 +197,14 @@ $(() => {
     if ($('.user-registration').is(':visible')) {
       $('.user-registration').hide();
     }
+    $('#form-resetpassword').hide();
   }));
+
+  $('#passwordreset-link, .passwordreset-link').click( (e) => {
+    e.preventDefault();
+    $('#form-resetpassword').show();
+    $('#form-signin').hide();
+  });
 
   // preventing default Submit event
   $('#form-signin').on('submit', ((e) => {
@@ -196,9 +212,6 @@ $(() => {
     // randomly select one user from the database at the beginning,
     // so that we have one user for ordering and checkout
     localStorage.removeItem('user');
-
-    bcrypt.hash($('#form-signin input[name=password]').val(), 0, function(err, hash) {
-      console.log('hash: ' + hash);
       $.ajax({
         url: "http://localhost:9090/api/login",
         method: "POST",
@@ -206,7 +219,7 @@ $(() => {
         dataType: "json",
         data: JSON.stringify({
            email: $('#form-signin input[name=email]').val(), 
-           password: hash
+           password: $('#form-signin input[name=password]').val()
         })
       })
       .done(function(data) {
@@ -222,12 +235,38 @@ $(() => {
           $('.logged').text(user.firstname);
           localStorage.setItem('user', JSON.stringify(user));
           $('.user-login').toggle('slow');
+          
         }
       })
       .fail(function(xhr) {
         console.log('error', xhr);
       });      
-    });
+  }));
+
+  $('#form-resetpassword').on('submit', ((e) => {
+    e.preventDefault();
+      $.ajax({
+        url: "http://localhost:9090/api/resetpassword",
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify({
+           email: $('#form-resetpassword input[name=email]').val()
+        })
+      })
+      .done(function(data) {
+        console.log('success', data);
+
+        if(data) {
+          $('.user-login').toggle('slow');
+        }
+        else {
+
+        }
+      })
+      .fail(function(xhr) {
+        console.log('error', xhr);
+      });      
   }));
 
   // click on signup button
@@ -247,7 +286,7 @@ $(() => {
   $('#user-signed-link').click(((e) => {
     e.preventDefault();
    
-    $('.user-registration').toggle('slow');
+    $('.user-updateinfo').toggle('slow');
     if ($('.shopping-cart').is(':visible')) {
       $('.shopping-cart').hide();
     }
@@ -257,15 +296,15 @@ $(() => {
     // get the user information from the local storage
     const user = JSON.parse(localStorage.getItem('user'));
     // change the field values accordingly
-    $('#form-signup [name="firstname"]').val(`${user.firstname}`);
-    $('#form-signup [name="lastname"]').val(`${user.lastname}`);
-    $('#form-signup [name="birthdate"]').val(`${user.birthdate.substring(0,10)}`);
-    $('#form-signup [name="street"]').val(`${user.street}`);
-    $('#form-signup [name="city"]').val(`${user.city}`);
-    $('#form-signup [name="postal"]').val(`${user.postal}`);
-    $('#form-signup [name="phone"]').val(`${user.phone}`);
-    $('#form-signup [name="email"]').val(`${user.email}`);
-    $('#form-signup [name="password"]').val(`${user.password}`);
+    $('#update-info [name="firstname"]').val(`${user.firstname}`);
+    $('#update-info [name="lastname"]').val(`${user.lastname}`);
+    $('#update-info [name="birthdate"]').val(`${user.birthdate.substring(0,10)}`);
+    $('#update-info [name="street"]').val(`${user.street}`);
+    $('#update-info [name="city"]').val(`${user.city}`);
+    $('#update-info [name="postal"]').val(`${user.postal}`);
+    $('#update-info [name="phone"]').val(`${user.phone}`);
+    $('#update-info [name="email"]').val(`${user.email}`);
+    $('#update-info [name="password"]').val(`${user.password}`);
   }));
 
   //  click on signout button
@@ -280,6 +319,11 @@ $(() => {
   }));
 
   // signup form submit
+
+
+ 
+
+
   $('#form-signup').on('submit', ((e) => {
     e.preventDefault();
     // retrieve registration info from the form and
@@ -324,6 +368,56 @@ $(() => {
       });      
   }));
 
+
+$('#update-info').on('submit', ((e) => {
+    e.preventDefault();
+    
+    // retrieve registration info from the form and
+    // save a new user in localStorage
+    const userStorage = JSON.parse(localStorage.getItem('user'));
+    
+    const user = {};
+
+    user.id = userStorage.id;
+    user.firstname = $('#update-info input[name=firstname]').val();
+    user.lastname = $('#update-info input[name=lastname]').val();
+    user.street = $('#update-info input[name=street]').val();
+    user.city = $('#update-info input[name=city]').val();
+    user.postal = $('#update-info input[name=postal]').val();
+    user.birthdate = $('#update-info input[name=birthdate]').val();
+    user.email = $('#update-info input[name=email]').val();
+    user.phone = $('#update-info input[name=phone]').val();
+    console.log(user);
+      $.ajax({
+        url: "http://localhost:9090/api/updateinfo",
+        method: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify(user)
+      })
+      .done(function(data) {
+        console.log('success', data);
+
+        if(data.err) {
+          $('.signerror').show();
+          $('.signerrmsg').text(data.err);
+        }
+        else {
+          const user = data;
+          localStorage.setItem('user', JSON.stringify(user));
+          loggedUser();
+          $('.logged').text(user.firstname);
+          $('.user-registration').toggle('slow');
+          $('signerror').hide();
+          $('.user-updateinfo').hide();
+        }
+      })
+      .fail(function(xhr) {
+        console.log('error', xhr);
+      });      
+  }));
+
+
   // the checkout button is located in the navbar too
   $('.checkout-proceed').click(() => {
     // create a jQuery object filled with the checkoutTemplate
@@ -366,10 +460,11 @@ $(() => {
         payment_method: $checkout.find('[name="payment"]:checked').val(),
       });
       // to send a POST request to the server
+      var userToken = JSON.parse(localStorage.getItem('user')).token;
       $.ajax('http://localhost:9090/api/order', {
         method: 'POST',
         headers: {
-          "Authorization": "Bearer " + localStorage.user.token
+          authorization: 'Bearer ' + userToken
         },        
         // the content-type of the request has to be application/json
         // in order for the spaerver to be able to read the body (of the request)

@@ -113,6 +113,29 @@ apiRouter.put('/activate/:activationcode', function(req, res, next) {
   });
 });
 
+function ensureToken(req, res, next) {
+  console.log('arrived at middleware ensureToken for /protected');
+  const bearerHeader = req.headers['authorization'];
+  if(typeof bearerHeader !== "undefined") {
+    const bearer = bearerHeader.split(" ");
+    const bearerToken = bearer[1];
+    req.token = bearerToken;
+    next();
+  } else {
+    res.sendStatus(403);
+  }
+}
+
+function isAuthorized(req, res, next) {
+  jwt.verify(req.token, serverSignature, function(err, data) {
+    if(err)
+      res.send(403);
+    else {
+      next();
+    }
+  });
+}
+
 /*
 apiRouter.post('/user', function(req, res, next) {
   con.query('select * from customers where email = ?',
@@ -151,17 +174,21 @@ apiRouter.post('/login', function(req, res) {
   con.query('select * from customers where email = ?', 
     [req.body.email], function(err, rows) {
     if (err) return res.json( {err: 'Internal error happened'} );
-    var bcrypt = require('bcryptjs');
-    if(rows.length > 0 && bcrypt.compareSync(rows[0].pwd, req.body.password)){
-      console.log("auth ok");
-      if(rows.length > 0) {
-        const token = jwt.sign({email: rows[0].email, pwd: rows[0].pwd}, serverSignature);    
-        const user = rows[0];
-        user.token = token;
-        delete user.pwd;  // do not send back the password
-        return res.json(user);
-      }
-    }else{
+    if(rows.length > 0) {
+        bcrypt.compare(req.body.password, rows[0].pwd, function(err, hashRes) {
+          if(hashRes) {
+            const token = jwt.sign({email: rows[0].email, pwd: rows[0].pwd}, serverSignature);    
+            const user = rows[0];
+            user.token = token;
+            delete user.pwd;  // do not send back the password
+            return res.json(user);
+        }
+        else {
+          return res.json({ err: 'password incorrect' });
+        }
+      });
+    } 
+    else {
       console.log("ERROR: password don't match");
       return res.json( {err: 'Username does not exist'});
     }
@@ -170,8 +197,8 @@ apiRouter.post('/login', function(req, res) {
 
 apiRouter.post('/register', function(req, res) {
   console.log(req.body);
-  // if(!req.body.email || !req.body.password)
-  //   return res.json({ err: 'username and password required'});
+  if(!req.body.email || !req.body.password)
+    return res.json({ err: 'username and password required'});
 
   con.query('select * from customers where email = ?',
     [req.body.email],
@@ -183,7 +210,8 @@ apiRouter.post('/register', function(req, res) {
       }
       else {
         const activationCode = randomstring.generate(20);
-        con.query(`insert into customers (firstname, lastname, birthdate, city, street, postal, email, phone, pwd, active, activationcode)
+    bcrypt.hash(req.body.password, 0, function(err, pwdHash) {
+          con.query(`insert into customers (firstname, lastname, birthdate, city, street, postal, email, phone, pwd, active, activationcode)
           values (?, ?, ?, ?, ?, ?, ?, ?, ?, '0', ?)`,
           [
             req.body.firstname,
@@ -194,7 +222,7 @@ apiRouter.post('/register', function(req, res) {
             req.body.postal,
             req.body.email,
             req.body.phone,
-            req.body.password,
+            pwdHash,
             activationCode
           ],
           function(err, rows) {
@@ -223,13 +251,38 @@ apiRouter.post('/register', function(req, res) {
               return res.json(req.body);
               res.json( req.body );
               */
-          }
-        );
+          });
+    });
       }
     });
 });
 
-apiRouter.post('/order', function(req, res, next) {   
+apiRouter.post('/updateinfo', function(req, res) {
+  console.log(req.body);
+ let sqlUpdate = 'update customers set ';
+  let e = 1;
+  let Length = Object.keys(req.body).length;
+  let updatevalues = [];
+  for(let updatefields in req.body) {
+    sqlUpdate += updatefields + ' = ?';
+    if(e < Length)
+      sqlUpdate += ',';
+    e++;
+    updatevalues.push( req.body[updatefields] );
+  }
+  sqlUpdate += ' where id = ?';
+  updatevalues.push( req.body.id );
+  con.query(sqlUpdate,
+    updatevalues,
+    function(err, rows) {
+    if (err) return next(err);
+    console.log( rows );
+    res.json(req.body);
+  });
+});
+
+
+apiRouter.post('/order', ensureToken, isAuthorized, function(req, res, next) {   
   console.log('RECEIVING: ' + JSON.stringify(req.body));
   con.query('insert into orders (customer_id, payment_id, created, paid) values (?, ?, now(), NULL)', [req.body.user.id, req.body.payment_method], function(err, rows) {
       if(err) {
@@ -303,6 +356,32 @@ apiRouter.put('/user/:userid', function(req, res, next) {
     console.log( rows );
     res.json( rows );
   });
+});
+
+apiRouter.post('/resetpassword', function(req, res) {
+  if(!req.body.email)
+    return res.json( {error: 'Email required'} );
+
+  const resetCode = randomstring.generate(20);
+    con.query('select * from customers where email = ?', [req.body.email],
+    function(err, rows) {
+      if (err) return res.json({err: err});
+
+      if(rows.length > 0) {
+      con.query('insert into passwordreset (email, resetcode) values (?, ?)', 
+        [req.body.email, resetCode],
+        function(err, rows) {       
+          if(err) return res.json({err:err});
+
+          return res.json( {err: 0} );
+        });
+
+      mailnotifier.sendMail(req.body.email, 'Your Password Reset',
+        'In order to reset your password, please follow this link: http://localhost:5000/resetpassword=' + resetCode);
+
+      }
+  }); 
+
 });
 
 apiRouter.delete('/user/:userid', function(req, res, next) {

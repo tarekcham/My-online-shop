@@ -53,13 +53,20 @@
       <label for="inputEmail" class="sr-only">Email address</label>
       <input type="email" name="email" id="inputEmailSignin" class="form-control" placeholder="Email address" required>
       <label for="inputPassword" class="sr-only">Password</label>
-      <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
+      <input type="password" name="password" id="inputPasswordSignin" class="form-control" placeholder="Password" required>
       <button type="submit" class="login-proceed btn btn-dark btn-block">Login</button>
     </form>
+    <form id="form-resetpassword" class="form-resetpassword" style="display: none">
+      <h3>Reset Password</h3>
+      <label for="inputEmailResetPassword" class="sr-only">Email address</label>
+      <input type="email" name="email" id="inputEmailResetPassword" class="form-control" placeholder="Email address" required><br>
+      <button type="submit" class="resetpassword-proceed btn btn-dark btn-block">Reset Password</button>
+    </form>    
     <div class="loginerror alert alert-danger" style="display: none">
       <strong>Error:</strong> <span class="errmsg">Username/Password does not exist</span>
     </div>    
-    <a id="signup-link" class="signup-link" href="#"><i class="fa fa-info-circle" aria-hidden="true"></i> Not Registered yet? Create an account!</a>
+    <a id="signup-link" class="signup-link" href="#"><i class="fa fa-info-circle" aria-hidden="true"></i> Not Registered yet? Create an account!</a><br>
+    <a id="passwordreset-link" class="passwordreset-link" href="#"><i class="fa fa-info-circle" aria-hidden="true"></i> Forgot your Password? Click here!</a>
   </div> <!--end user-login-header -->
 </div> <!--end user-login -->
 
@@ -79,20 +86,52 @@
       <input type="text" id="inputCity" name="city" class="form-control" placeholder="City" required>
       <label for="inputPostal" class="sr-only">Postal</label>
       <input type="text" id="inputPostal" name="postal" class="form-control" placeholder="Postal" required>
-      <label for="inputPhone" class="sr-only">Phone</label>
-      <input type="text" id="inputPhone" name="phone" class="form-control" placeholder="Phone" required>
       <label for="inputEmail" class="sr-only">Email address</label>
       <input type="email" id="inputEmail" name="email" class="form-control" placeholder="Email address" required>
-      <label for="inputPassword2" class="sr-only">Password</label>
-      <input type="password" name="pwd2" id="inputPassword2" class="form-control" placeholder="Password" required>
+      <label for="inputPhone" class="sr-only">Phone</label>
+      <input type="text" id="inputPhone" name="phone" class="form-control" placeholder="Phone" required>
+      <label for="inputPassword" class="sr-only">Password</label>
+      <input type="password" minlength="6" id="inputPassword" name="password" class="form-control" placeholder="Password" required>
       <button type="submit" class="login-proceed btn btn-dark btn-block">Register Now</button>
-      <div class="loguperror alert alert-danger" style="display: none">
-      <strong>Error:</strong> <span class="errmsg2">Username/Password does not exist</span>
-    </div>
     </form>
+    <div class="signerror alert alert-danger" style="display: none">
+      <strong>Error:</strong> <span class="signerrmsg"></span>
+    </div>  
     <a id="signup-link" class="signin-link" href="#"><i class="fa fa-info-circle" aria-hidden="true"></i> Already Registered? Sign-in!</a>
   </div> <!--end user-login-header -->
 </div> <!--end user-login -->
+
+
+<div class="user-updateinfo">
+  <div class="user-registration-header">
+    <form id="update-info" class="form-signup">
+      <h3>Edit info</h3>
+      <label for="inputFirstname" class="sr-only">Firstname</label>
+      <input type="text" id="inputFirstname2" name="firstname" class="form-control" placeholder="Firstname" required>
+      <label for="inputLastname" class="sr-only">Lastname</label>
+      <input type="text" id="inputLastname2" name="lastname" class="form-control" placeholder="Lastname" required>
+      <label for="inputBirthdate" class="sr-only">Birthdate</label>
+      <input type="date" id="inputBirthdate2" name="birthdate" class="form-control" placeholder="Birthdate" required>
+      <label for="inputStreet" class="sr-only">Street</label>
+      <input type="text" id="inputUsername2" name="street" class="form-control" placeholder="Street" required>
+      <label for="inputCity" class="sr-only">City</label>
+      <input type="text" id="inputCity2" name="city" class="form-control" placeholder="City" required>
+      <label for="inputPostal" class="sr-only">Postal</label>
+      <input type="text" id="inputPostal2" name="postal" class="form-control" placeholder="Postal" required>
+      <label for="inputEmail" class="sr-only">Email address</label>
+      <input type="email" id="inputEmail2" name="email" class="form-control" placeholder="Email address" required>
+      <label for="inputPhone" class="sr-only">Phone</label>
+      <input type="text" id="inputPhone2" name="phone" class="form-control" placeholder="Phone" required>
+      <label for="inputPassword" class="sr-only">Password</label>
+      <input type="password" minlength="6" id="inputPassword2" name="password" class="form-control" placeholder="Password" required>
+      <button type="submit" class="login-proceed btn btn-dark btn-block">Register Now</button>
+    </form>
+    <div class="signerror alert alert-danger" style="display: none">
+      <strong>Error:</strong> <span class="signerrmsg"></span>
+    </div>  
+    <a id="signup-link" class="signin-link" href="#"><i class="fa fa-info-circle" aria-hidden="true"></i> Already Registered? Sign-in!</a>
+  </div> <!--end user-login-header -->
+</div>
 
   <div class="shopping-cart">
     <div class="shopping-cart-header">
